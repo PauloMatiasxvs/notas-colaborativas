@@ -1,7 +1,7 @@
 {
   "name": "notas-colaborativas",
   "version": "1.0.0",
-  "description": "Notas colaborativas com persistência",
+  "description": "Notas colaborativas simples",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,8 +13,6 @@
   "type": "commonjs",
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.8.0",
-    "sqlite3": "^5.1.7",
-    "bcrypt": "^5.1.1"
+    "socket.io": "^4.8.0"
   }
 }
