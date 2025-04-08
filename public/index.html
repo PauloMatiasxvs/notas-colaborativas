@@ -5,83 +5,99 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background: #2c3e50; /* Cor de fundo tipo lousa escura */
-      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #2c3e50, #34495e); /* Gradiente de lousa */
+      font-family: 'Comic Sans MS', 'Arial', sans-serif; /* Fonte descontraída */
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      align-items: flex-start;
     }
 
     #login {
-      background: #ecf0f1;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
       text-align: center;
+      z-index: 10;
     }
 
     #login input {
-      padding: 10px;
-      margin: 10px;
-      border: none;
-      border-radius: 5px;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #3498db;
+      border-radius: 8px;
       font-size: 16px;
+      width: 200px;
+      outline: none;
     }
 
     #login button {
-      padding: 10px 20px;
-      background: #3498db;
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #3498db, #2980b9);
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
+      transition: transform 0.2s;
     }
 
     #login button:hover {
-      background: #2980b9;
+      transform: scale(1.05);
     }
 
     #mensagem {
       color: #e74c3c;
-      margin: 10px 0;
+      font-size: 14px;
+      margin-top: 10px;
     }
 
     #board {
       display: none;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 25px;
+      width: 100%;
+      max-width: 1400px;
       padding: 20px;
-      width: 90%;
-      max-width: 1200px;
-      background: #34495e; /* Lousa mais clara */
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
 
     .nota {
-      width: 250px;
-      height: 250px;
+      width: 220px;
+      height: 220px;
       padding: 15px;
       border: none;
-      border-radius: 5px;
+      border-radius: 10px;
       font-size: 16px;
       resize: none;
-      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
-      transform: rotate(-2deg); /* Leve inclinação para parecer post-it */
-      transition: transform 0.2s;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2), inset 0 0 5px rgba(0, 0, 0, 0.1);
+      transform: rotate(-3deg);
+      transition: transform 0.3s, box-shadow 0.3s;
+      background: linear-gradient(135deg, var(--cor1), var(--cor2));
     }
 
     .nota:hover {
-      transform: scale(1.05);
+      transform: scale(1.05) rotate(0deg);
+      box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.3);
     }
 
-    /* Cores diferentes para as notas */
-    .nota:nth-child(1) { background: #f1c40f; } /* Amarelo */
-    .nota:nth-child(2) { background: #e74c3c; color: white; } /* Vermelho */
-    .nota:nth-child(3) { background: #2ecc71; } /* Verde */
-    .nota:nth-child(4) { background: #3498db; color: white; } /* Azul */
+    .nota:focus {
+      outline: none;
+      transform: scale(1.05) rotate(0deg);
+    }
+
+    /* Cores para as notas */
+    #nota1 { --cor1: #f1c40f; --cor2: #f39c12; } /* Amarelo */
+    #nota2 { --cor1: #e74c3c; --cor2: #c0392b; color: white; } /* Vermelho */
+    #nota3 { --cor1: #2ecc71; --cor2: #27ae60; } /* Verde */
+    #nota4 { --cor1: #3498db; --cor2: #2980b9; color: white; } /* Azul */
+    #nota5 { --cor1: #9b59b6; --cor2: #8e44ad; color: white; } /* Roxo */
+    #nota6 { --cor1: #e67e22; --cor2: #d35400; } /* Laranja */
   </style>
 </head>
 <body>
@@ -92,10 +108,12 @@
   </div>
 
   <div id="board">
-    <textarea class="nota" id="nota1"></textarea>
-    <textarea class="nota" id="nota2"></textarea>
-    <textarea class="nota" id="nota3"></textarea>
-    <textarea class="nota" id="nota4"></textarea>
+    <textarea class="nota" id="nota1" placeholder="Escreva aqui..."></textarea>
+    <textarea class="nota" id="nota2" placeholder="Escreva aqui..."></textarea>
+    <textarea class="nota" id="nota3" placeholder="Escreva aqui..."></textarea>
+    <textarea class="nota" id="nota4" placeholder="Escreva aqui..."></textarea>
+    <textarea class="nota" id="nota5" placeholder="Escreva aqui..."></textarea>
+    <textarea class="nota" id="nota6" placeholder="Escreva aqui..."></textarea>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -108,7 +126,9 @@
       document.getElementById('nota1'),
       document.getElementById('nota2'),
       document.getElementById('nota3'),
-      document.getElementById('nota4')
+      document.getElementById('nota4'),
+      document.getElementById('nota5'),
+      document.getElementById('nota6')
     ];
 
     function autenticar() {
@@ -119,8 +139,7 @@
     socket.on('atualizarNotas', (novasNotas) => {
       login.style.display = 'none';
       board.style.display = 'flex';
-      // Divide as notas em até 4 partes (ou preenche com vazio)
-      const partes = novasNotas.split('\n\n').concat(['', '', '', '']).slice(0, 4);
+      const partes = novasNotas.split('\n\n').concat(['', '', '', '', '', '']).slice(0, 6);
       notas.forEach((nota, i) => nota.value = partes[i]);
     });
 
