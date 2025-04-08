@@ -3,30 +3,47 @@
 <head>
   <title>Notas Colaborativas</title>
   <style>
-    textarea {
-      width: 80%;
-      height: 400px;
-      margin: 20px auto;
-      display: block;
+    #login { margin: 20px; }
+    textarea { 
+      width: 80%; 
+      height: 400px; 
+      margin: 20px auto; 
+      display: none; 
+      padding: 10px; 
       font-size: 16px;
-      padding: 10px;
     }
+    #mensagem { color: red; margin: 10px; }
   </style>
 </head>
 <body>
+  <div id="login">
+    <input type="password" id="senha" placeholder="Digite a senha">
+    <button onclick="autenticar()">Entrar</button>
+  </div>
+  <div id="mensagem"></div>
   <textarea id="notas"></textarea>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
     const textarea = document.getElementById('notas');
+    const mensagem = document.getElementById('mensagem');
 
-    // Recebe atualizações do servidor
+    function autenticar() {
+      const senha = document.getElementById('senha').value;
+      socket.emit('autenticar', senha);
+    }
+
     socket.on('atualizarNotas', (novasNotas) => {
+      textarea.style.display = 'block';
+      document.getElementById('login').style.display = 'none';
       textarea.value = novasNotas;
     });
 
-    // Envia atualizações quando o usuário digita
+    socket.on('authErro', (msg) => {
+      mensagem.textContent = msg;
+    });
+
     textarea.addEventListener('input', () => {
       socket.emit('editarNotas', textarea.value);
     });
