@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notas Colaborativas</title>
+  <style>
+    textarea {
+      width: 80%;
+      height: 400px;
+      margin: 20px auto;
+      display: block;
+      font-size: 16px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <textarea id="notas"></textarea>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const textarea = document.getElementById('notas');
+
+    // Recebe atualizações do servidor
+    socket.on('atualizarNotas', (novasNotas) => {
+      textarea.value = novasNotas;
+    });
+
+    // Envia atualizações quando o usuário digita
+    textarea.addEventListener('input', () => {
+      socket.emit('editarNotas', textarea.value);
+    });
+  </script>
+</body>
+</html>
