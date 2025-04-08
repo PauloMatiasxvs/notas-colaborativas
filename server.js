@@ -1,7 +1,10 @@
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http, {
+  cors: { origin: '*' }, // Permite conexões de qualquer origem
+  path: '/socket.io' // Caminho explícito para WebSocket
+});
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -12,7 +15,7 @@ app.get('/', (req, res) => {
 });
 
 const SENHA_CORRETA = 'senha123';
-let notas = [];
+let notas = []; // Armazena as notas em memória
 
 io.on('connection', (socket) => {
   console.log('Novo cliente conectado:', socket.id);
