@@ -106,13 +106,12 @@
       outline: none;
     }
 
-    /* Paleta de cores */
-    .cor1 { --cor1: #f1c40f; --cor2: #f39c12; } /* Amarelo */
-    .cor2 { --cor1: #e74c3c; --cor2: #c0392b; color: white; } /* Vermelho */
-    .cor3 { --cor1: #2ecc71; --cor2: #27ae60; } /* Verde */
-    .cor4 { --cor1: #3498db; --cor2: #2980b9; color: white; } /* Azul */
-    .cor5 { --cor1: #9b59b6; --cor2: #8e44ad; color: white; } /* Roxo */
-    .cor6 { --cor1: #e67e22; --cor2: #d35400; } /* Laranja */
+    .cor1 { --cor1: #f1c40f; --cor2: #f39c12; }
+    .cor2 { --cor1: #e74c3c; --cor2: #c0392b; color: white; }
+    .cor3 { --cor1: #2ecc71; --cor2: #27ae60; }
+    .cor4 { --cor1: #3498db; --cor2: #2980b9; color: white; }
+    .cor5 { --cor1: #9b59b6; --cor2: #8e44ad; color: white; }
+    .cor6 { --cor1: #e67e22; --cor2: #d35400; }
   </style>
 </head>
 <body>
@@ -140,7 +139,7 @@
       nota.classList.add('nota', cores[notas.length % cores.length]);
       nota.placeholder = 'Escreva aqui...';
       nota.value = conteudo;
-      nota.dataset.id = id || Date.now(); // ID único para cada nota
+      nota.dataset.id = id || Date.now();
       nota.addEventListener('input', () => {
         atualizarNotas();
       });
@@ -159,16 +158,20 @@
         id: nota.dataset.id,
         conteudo: nota.value
       }));
+      console.log('Enviando notas para o servidor:', notasData);
       socket.emit('editarNotas', notasData);
     }
 
+    socket.on('connect', () => {
+      console.log('Conectado ao servidor');
+    });
+
     socket.on('atualizarNotas', (novasNotas) => {
+      console.log('Notas recebidas do servidor:', novasNotas);
       login.style.display = 'none';
       board.style.display = 'flex';
-      // Limpa notas existentes
       notas.forEach(nota => nota.remove());
       notas = [];
-      // Recria as notas do servidor
       novasNotas.forEach(notaData => {
         const nota = criarNota(notaData.conteudo, notaData.id);
         notas.push(nota);
@@ -176,11 +179,13 @@
     });
 
     socket.on('authErro', (msg) => {
+      console.log('Erro de autenticação:', msg);
       mensagem.textContent = msg;
     });
 
     function autenticar() {
       const senha = document.getElementById('senha').value;
+      console.log('Tentando autenticar com senha:', senha);
       socket.emit('autenticar', senha);
     }
   </script>

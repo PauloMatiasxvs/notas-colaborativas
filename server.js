@@ -7,29 +7,41 @@ app.use(express.static('public'));
 app.use(express.json());
 
 app.get('/', (req, res) => {
+  console.log('Requisição GET para /');
   res.sendFile(__dirname + '/public/index.html');
 });
 
 const SENHA_CORRETA = 'senha123';
-let notas = []; // Armazena as notas em memória (temporário)
+let notas = [];
 
 io.on('connection', (socket) => {
+  console.log('Novo cliente conectado:', socket.id);
+
   socket.on('autenticar', (senha) => {
+    console.log('Tentativa de autenticação com senha:', senha);
     if (senha === SENHA_CORRETA) {
       socket.autenticado = true;
+      console.log('Autenticação bem-sucedida para', socket.id);
       socket.emit('atualizarNotas', notas);
     } else {
+      console.log('Senha incorreta para', socket.id);
       socket.emit('authErro', 'Senha incorreta');
     }
   });
 
   socket.on('editarNotas', (novasNotas) => {
     if (!socket.autenticado) {
+      console.log('Cliente não autenticado tentou editar notas:', socket.id);
       socket.emit('authErro', 'Você precisa se autenticar');
       return;
     }
-    notas = novasNotas; // Atualiza o array de notas
-    socket.broadcast.emit('atualizarNotas', notas); // Sincroniza com outros usuários
+    console.log('Notas atualizadas por', socket.id, ':', novasNotas);
+    notas = novasNotas;
+    socket.broadcast.emit('atualizarNotas', notas);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
   });
 });
 
