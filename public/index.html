@@ -3,31 +3,113 @@
 <head>
   <title>Notas Colaborativas</title>
   <style>
-    #login { margin: 20px; }
-    textarea { 
-      width: 80%; 
-      height: 400px; 
-      margin: 20px auto; 
-      display: none; 
-      padding: 10px; 
+    body {
+      margin: 0;
+      padding: 0;
+      background: #2c3e50; /* Cor de fundo tipo lousa escura */
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #login {
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    #login input {
+      padding: 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
       font-size: 16px;
     }
-    #mensagem { color: red; margin: 10px; }
+
+    #login button {
+      padding: 10px 20px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #login button:hover {
+      background: #2980b9;
+    }
+
+    #mensagem {
+      color: #e74c3c;
+      margin: 10px 0;
+    }
+
+    #board {
+      display: none;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 1200px;
+      background: #34495e; /* Lousa mais clara */
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .nota {
+      width: 250px;
+      height: 250px;
+      padding: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      resize: none;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+      transform: rotate(-2deg); /* Leve inclinação para parecer post-it */
+      transition: transform 0.2s;
+    }
+
+    .nota:hover {
+      transform: scale(1.05);
+    }
+
+    /* Cores diferentes para as notas */
+    .nota:nth-child(1) { background: #f1c40f; } /* Amarelo */
+    .nota:nth-child(2) { background: #e74c3c; color: white; } /* Vermelho */
+    .nota:nth-child(3) { background: #2ecc71; } /* Verde */
+    .nota:nth-child(4) { background: #3498db; color: white; } /* Azul */
   </style>
 </head>
 <body>
   <div id="login">
     <input type="password" id="senha" placeholder="Digite a senha">
     <button onclick="autenticar()">Entrar</button>
+    <div id="mensagem"></div>
   </div>
-  <div id="mensagem"></div>
-  <textarea id="notas"></textarea>
+
+  <div id="board">
+    <textarea class="nota" id="nota1"></textarea>
+    <textarea class="nota" id="nota2"></textarea>
+    <textarea class="nota" id="nota3"></textarea>
+    <textarea class="nota" id="nota4"></textarea>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const textarea = document.getElementById('notas');
+    const login = document.getElementById('login');
+    const board = document.getElementById('board');
     const mensagem = document.getElementById('mensagem');
+    const notas = [
+      document.getElementById('nota1'),
+      document.getElementById('nota2'),
+      document.getElementById('nota3'),
+      document.getElementById('nota4')
+    ];
 
     function autenticar() {
       const senha = document.getElementById('senha').value;
@@ -35,17 +117,22 @@
     }
 
     socket.on('atualizarNotas', (novasNotas) => {
-      textarea.style.display = 'block';
-      document.getElementById('login').style.display = 'none';
-      textarea.value = novasNotas;
+      login.style.display = 'none';
+      board.style.display = 'flex';
+      // Divide as notas em até 4 partes (ou preenche com vazio)
+      const partes = novasNotas.split('\n\n').concat(['', '', '', '']).slice(0, 4);
+      notas.forEach((nota, i) => nota.value = partes[i]);
     });
 
     socket.on('authErro', (msg) => {
       mensagem.textContent = msg;
     });
 
-    textarea.addEventListener('input', () => {
-      socket.emit('editarNotas', textarea.value);
+    notas.forEach(nota => {
+      nota.addEventListener('input', () => {
+        const textoCompleto = notas.map(n => n.value).join('\n\n').trim();
+        socket.emit('editarNotas', textoCompleto);
+      });
     });
   </script>
 </body>
