@@ -1,13 +1,13 @@
 {
   "name": "notas-colaborativas",
   "version": "1.0.0",
-  "description": "Notas colaborativas com salvamento permanente e autenticação",
+  "description": "Notas colaborativas com persistência",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["notas", "colaborativo", "realtime"],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
