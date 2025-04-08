@@ -3,8 +3,8 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   cors: { origin: '*' }, // Permite conexões de qualquer origem
-  path: '/socket.io', // Caminho explícito para WebSocket
-  transports: ['websocket', 'polling'] // Força WebSocket com fallback para polling
+  path: '/socket.io', // Caminho explícito para Socket.IO
+  transports: ['websocket', 'polling'] // Suporte a WebSocket com fallback
 });
 
 app.use(express.static('public'));
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 const SENHA_CORRETA = 'senha123';
-let notas = []; // Armazena as notas em memória
+let notas = [];
 
 io.on('connection', (socket) => {
   console.log('Novo cliente conectado:', socket.id);
@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
     if (senha === SENHA_CORRETA) {
       socket.autenticado = true;
       console.log('Autenticação bem-sucedida para', socket.id);
-      socket.emit('autenticacaoSucesso', notas); // Evento mais explícito
+      socket.emit('atualizarNotas', notas);
     } else {
       console.log('Senha incorreta para', socket.id);
       socket.emit('authErro', 'Senha incorreta');
@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
     console.log('Notas atualizadas por', socket.id, ':', novasNotas);
     notas = novasNotas;
     socket.broadcast.emit('atualizarNotas', notas);
-    socket.emit('atualizarNotas', notas); // Envia de volta para o cliente que editou
+    socket.emit('atualizarNotas', notas);
   });
 
   socket.on('disconnect', () => {

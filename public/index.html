@@ -129,7 +129,7 @@
   <script>
     const socket = io({
       path: '/socket.io',
-      transports: ['websocket', 'polling'] // Força WebSocket com fallback
+      transports: ['websocket', 'polling'] // Garante compatibilidade com Vercel
     });
     const login = document.getElementById('login');
     const board = document.getElementById('board');
@@ -169,20 +169,10 @@
       console.log('Conectado ao servidor');
     });
 
-    socket.on('autenticacaoSucesso', (novasNotas) => {
-      console.log('Autenticação bem-sucedida, notas recebidas:', novasNotas);
+    socket.on('atualizarNotas', (novasNotas) => {
+      console.log('Notas recebidas do servidor:', novasNotas);
       login.style.display = 'none';
       board.style.display = 'flex';
-      notas.forEach(nota => nota.remove());
-      notas = [];
-      novasNotas.forEach(notaData => {
-        const nota = criarNota(notaData.conteudo, notaData.id);
-        notas.push(nota);
-      });
-    });
-
-    socket.on('atualizarNotas', (novasNotas) => {
-      console.log('Notas atualizadas do servidor:', novasNotas);
       notas.forEach(nota => nota.remove());
       notas = [];
       novasNotas.forEach(notaData => {
@@ -198,7 +188,7 @@
 
     socket.on('connect_error', (err) => {
       console.log('Erro de conexão:', err.message);
-      mensagem.textContent = 'Erro ao conectar ao servidor';
+      mensagem.textContent = 'Erro ao conectar ao servidor: ' + err.message;
     });
 
     function autenticar() {
